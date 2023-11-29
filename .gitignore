@@ -1,0 +1,14 @@
+.env
+.ideas/*
+.vscode/settings.json
+.go.sum
+.idea
+test.go
+
+*.tar.gz
+
+migrate_posting_media
+coverage*
+.scannerwork
+__debug*
+.vscode
