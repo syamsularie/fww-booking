@@ -15,6 +15,14 @@ type Flight struct {
 	AvailableSeats int       `json:"available_seats"`
 }
 
+type FlightResponse struct {
+	FlightNumber         string    `json:"flight_number"`
+	DepartureAirportCode string    `json:"departure_airport_code"`
+	ArrivalAirportCode   string    `json:"arrival_airport_code"`
+	DepartureDateTime    time.Time `json:"departure_date_time"`
+	ArrivalDateTime      time.Time `json:"arrival_date_time"`
+}
+
 // Booking represents a booking entity
 type Reservation struct {
 	ReservationID int       `json:"reservation_id"`
