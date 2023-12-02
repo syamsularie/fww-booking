@@ -71,11 +71,14 @@ func (s *FlightUsecase) BookFlight(bookingRequest model.BookingRequest) (model.R
 	ctx := context.Background()
 	// variables := make(map[model.BookingVariables]interface{})
 	variables := model.BookingVariables{
-		ReservationID: reservationId,
-		StatusPayment: false,
+		ReservationID:  reservationId,
+		StatusPayment:  false,
+		BlacklistUser:  false,
+		Dukcapil:       "not valid",
+		PeduliLindungi: "not vaksin",
 	}
 
-	request, err := zbClient.NewCreateInstanceCommand().BPMNProcessId("fww-bpm").LatestVersion().VariablesFromObject(variables)
+	request, err := zbClient.NewCreateInstanceCommand().BPMNProcessId("fww-reservation").LatestVersion().VariablesFromObject(variables)
 	if err != nil {
 		panic(err)
 	}
@@ -97,4 +100,10 @@ func (s *FlightUsecase) GetAllReservations() ([]model.Reservation, error) {
 		return []model.Reservation{}, err
 	}
 	return reservations, nil
+}
+
+// Confirm Payment
+func (s *FlightUsecase) ConfirmPayment(instanceID int64) error {
+
+	return nil
 }

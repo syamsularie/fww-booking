@@ -36,8 +36,11 @@ type BookingRequest struct {
 // Variable BPMN
 
 type BookingVariables struct {
-	ReservationID int  `json:"reservation_id"`
-	StatusPayment bool `json:"status_payment"`
+	ReservationID  int    `json:"reservationId"`
+	BlacklistUser  bool   `json:"blacklistUser"`
+	PeduliLindungi string `json:"peduliLindungi"`
+	Dukcapil       string `json:"dukcapil"`
+	StatusPayment  bool   `json:"status_payment"`
 }
 
 var (
