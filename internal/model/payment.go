@@ -20,3 +20,7 @@ type PaymentDetailResponse struct {
 	PaymentMethod      string  `json:"payment_method"`
 	PaymentCode        string  `json:"payment_code"`
 }
+
+type PaymentPayRequest struct {
+	PaymentCode string `json:"payment_code"`
+}

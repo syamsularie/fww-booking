@@ -59,13 +59,18 @@ func main() {
 		DB: db,
 	})
 
+	reservationRepo := repository.NewReservationRepository(repository.ReservationRepository{
+		DB: db,
+	})
+
 	// Initialize usecase
 	flightUscase := usecase.NewFlightUsecaseService(&usecase.FlightUsecase{
 		FlightRepo: flightRepo,
 	})
 
 	paymentUsecase := usecase.NewPaymentUsecaseService(&usecase.PaymentUsecase{
-		PaymentRepo: paymentRepo,
+		PaymentRepo:     paymentRepo,
+		ReservationRepo: reservationRepo,
 	})
 
 	// Initialize handler
@@ -109,6 +114,7 @@ func main() {
 	app.Post("/complete", Complete)
 	//=== payment route
 	app.Get("/payment/detail/:id", paymentHandler.GetPaymentDetailByPaymentID)
+	app.Post("/payment/pay", paymentHandler.PostPaymentPay)
 
 	//=== listen port ===//
 	if err := app.Listen(fmt.Sprintf(":%s", "3002")); err != nil {

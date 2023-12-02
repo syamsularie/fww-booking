@@ -5,17 +5,21 @@ import (
 	"booking-engine/internal/repository"
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type PaymentUsecase struct {
-	PaymentRepo repository.PaymentPersister
+	PaymentRepo     repository.PaymentPersister
+	ReservationRepo repository.ReservationPersister
 }
 
 type PaymentExecutor interface {
 	GetPaymentDetailByPaymentID(paymentID int) (model.PaymentDetailResponse, error)
+	UpdatePaymentStatus(paymentCode string, status bool) error
 }
 
 func NewPaymentUsecaseService(paymentUsecase *PaymentUsecase) PaymentExecutor {
@@ -59,4 +63,29 @@ func (s *PaymentUsecase) GetPaymentDetailByPaymentID(paymentID int) (model.Payme
 	paymentDetailResponse.PaymentCode = paymentDetail.PaymentCode
 
 	return paymentDetailResponse, nil
+}
+
+func (s *PaymentUsecase) UpdatePaymentStatus(paymentCode string, status bool) error {
+	if err := s.PaymentRepo.UpdatePaymentStatus(paymentCode, status); err != nil {
+		return err
+	}
+
+	reservationID, err := s.PaymentRepo.GetReservationIDByPaymentCode(paymentCode)
+	if err != nil {
+		return err
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	bookCode := make([]byte, 5)
+	for i := range bookCode {
+		bookCode[i] = charset[rand.Intn(len(charset))]
+	}
+
+	err = s.ReservationRepo.UpdateBookingCode(reservationID, string(bookCode))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

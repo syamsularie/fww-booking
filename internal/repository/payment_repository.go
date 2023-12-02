@@ -11,6 +11,8 @@ type PaymentRepository struct {
 
 type PaymentPersister interface {
 	GetPaymentDetailByPaymentID(paymentID int) (model.PaymentDetail, error)
+	UpdatePaymentStatus(paymentCode string, status bool) error
+	GetReservationIDByPaymentCode(paymentCode string) (int, error)
 }
 
 func NewPaymentRepository(payment PaymentRepository) PaymentPersister {
@@ -37,4 +39,25 @@ func (r *PaymentRepository) GetPaymentDetailByPaymentID(paymentID int) (model.Pa
 
 	return paymentDetail, nil
 
+}
+
+func (r *PaymentRepository) UpdatePaymentStatus(paymentCode string, status bool) error {
+	query := `UPDATE payments SET payment_status = ? WHERE payment_code = ?`
+	_, err := r.DB.Exec(query, status, paymentCode)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *PaymentRepository) GetReservationIDByPaymentCode(paymentCode string) (int, error) {
+	var reservationID int
+	row := r.DB.QueryRow("SELECT reservation_id FROM payments WHERE payment_code = ?", paymentCode)
+	err := row.Scan(&reservationID)
+	if err != nil {
+		return 0, err
+	}
+
+	return reservationID, nil
 }
