@@ -84,7 +84,6 @@ func (s *FlightUsecase) BookFlight(bookingRequest model.BookingRequest) (model.R
 	}
 
 	resp, err := request.Send(ctx)
-	fmt.Println("BLI", resp.ProcessInstanceKey)
 	if err != nil {
 		panic(err)
 	}
