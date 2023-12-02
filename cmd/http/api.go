@@ -50,19 +50,31 @@ func main() {
 	prometheus.MustRegister(dbCollector)
 	fiberProm := middleware.NewWithRegistry(prometheus.DefaultRegisterer, "fww-booking", "", "", map[string]string{})
 
-	// Initialize the flight repository
+	// Initialize repository
 	flightRepo := repository.NewFlightRepository(repository.FlightRepository{
 		DB: db,
 	})
 
-	// Initialize the flight usecase
+	paymentRepo := repository.NewPaymentRepository(repository.PaymentRepository{
+		DB: db,
+	})
+
+	// Initialize usecase
 	flightUscase := usecase.NewFlightUsecaseService(&usecase.FlightUsecase{
 		FlightRepo: flightRepo,
 	})
 
-	// Initialize the flight handler
+	paymentUsecase := usecase.NewPaymentUsecaseService(&usecase.PaymentUsecase{
+		PaymentRepo: paymentRepo,
+	})
+
+	// Initialize handler
 	flightHandler := handler.NewHandler(handler.Handler{
 		Usecase: flightUscase,
+	})
+
+	paymentHandler := handler.NewPaymentHandler(handler.Payment{
+		PaymentUsecase: paymentUsecase,
 	})
 
 	app := fiber.New(fiber.Config{
@@ -95,6 +107,8 @@ func main() {
 	app.Post("/bookings", flightHandler.BookFlight)
 	app.Get("/bookings", flightHandler.GetAllReservations)
 	app.Post("/complete", Complete)
+	//=== payment route
+	app.Get("/payment/detail/:id", paymentHandler.GetPaymentDetailByPaymentID)
 
 	//=== listen port ===//
 	if err := app.Listen(fmt.Sprintf(":%s", "3002")); err != nil {
