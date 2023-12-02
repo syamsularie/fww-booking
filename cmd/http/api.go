@@ -115,6 +115,7 @@ func main() {
 	//=== payment route
 	app.Get("/payment/detail/:id", paymentHandler.GetPaymentDetailByPaymentID)
 	app.Post("/payment/pay", paymentHandler.PostPaymentPay)
+	app.Get("/ticket/detail/:booking_code", paymentHandler.GetTicketDetailByBookingCode)
 
 	//=== listen port ===//
 	if err := app.Listen(fmt.Sprintf(":%s", "3002")); err != nil {

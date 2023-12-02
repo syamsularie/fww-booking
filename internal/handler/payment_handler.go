@@ -15,6 +15,7 @@ type Payment struct {
 type PaymentHandler interface {
 	GetPaymentDetailByPaymentID(c *fiber.Ctx) error
 	PostPaymentPay(c *fiber.Ctx) error
+	GetTicketDetailByBookingCode(c *fiber.Ctx) error
 }
 
 func NewPaymentHandler(handler Payment) PaymentHandler {
@@ -44,4 +45,14 @@ func (h *Payment) PostPaymentPay(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success"})
+}
+
+func (h *Payment) GetTicketDetailByBookingCode(c *fiber.Ctx) error {
+	bookingCode := c.Params("booking_code")
+	ticketDetail, err := h.PaymentUsecase.GetTicketDetailByBookingCode(bookingCode)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(ticketDetail)
 }

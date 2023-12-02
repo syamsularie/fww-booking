@@ -20,6 +20,7 @@ type PaymentUsecase struct {
 type PaymentExecutor interface {
 	GetPaymentDetailByPaymentID(paymentID int) (model.PaymentDetailResponse, error)
 	UpdatePaymentStatus(paymentCode string, status bool) error
+	GetTicketDetailByBookingCode(bookingCode string) (model.TicketDetailResponse, error)
 }
 
 func NewPaymentUsecaseService(paymentUsecase *PaymentUsecase) PaymentExecutor {
@@ -88,4 +89,65 @@ func (s *PaymentUsecase) UpdatePaymentStatus(paymentCode string, status bool) er
 	}
 
 	return nil
+}
+
+func (s *PaymentUsecase) GetTicketDetailByBookingCode(bookingCode string) (model.TicketDetailResponse, error) {
+	var ticketDetailResponse model.TicketDetailResponse
+
+	reservation, err := s.ReservationRepo.GetReservationByBookingCode(bookingCode)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+
+	//Fetch passenger
+	passengerIDRequest := strconv.Itoa(reservation.PassengerID)
+	fwwCoreApiURL := os.Getenv("FWW_CORE_URL") + "/passengers/" + passengerIDRequest
+	response, err := http.Get(fwwCoreApiURL)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+
+	var passenger model.PassengerResponse
+	err = json.Unmarshal(body, &passenger)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+
+	//Fetch flight
+	fwwCoreApiURL = os.Getenv("FWW_CORE_URL") + "/flights/" + reservation.FlightNumber
+	response, err = http.Get(fwwCoreApiURL)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+	defer response.Body.Close()
+
+	body, err = io.ReadAll(response.Body)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+
+	var flight model.FlightResponse
+	err = json.Unmarshal(body, &flight)
+	if err != nil {
+		return ticketDetailResponse, err
+	}
+
+	ticketDetailResponse.FlightNumber = reservation.FlightNumber
+	ticketDetailResponse.BookingCode = bookingCode
+	ticketDetailResponse.PassengerFirstName = passenger.FirstName
+	ticketDetailResponse.PassengerLastName = passenger.LastName
+	ticketDetailResponse.FlightNumber = flight.FlightNumber
+	ticketDetailResponse.SeatNumber = reservation.SeatNumber
+	ticketDetailResponse.DepartureAirportCode = flight.DepartureAirportCode
+	ticketDetailResponse.ArrivalAirportCode = flight.ArrivalAirportCode
+	ticketDetailResponse.DepartureDateTime = flight.DepartureDateTime
+	ticketDetailResponse.ArrivalDateTime = flight.ArrivalDateTime
+
+	return ticketDetailResponse, nil
 }
