@@ -15,7 +15,7 @@ CREATE TABLE payments (
     reservation_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    payment_status VARCHAR(20) NOT NULL,
+    payment_status TINYINT(1) NOT NULL,
     payment_method VARCHAR(50),
     payment_code VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
