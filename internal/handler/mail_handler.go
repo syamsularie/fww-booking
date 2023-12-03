@@ -1,12 +1,8 @@
 package handler
 
 import (
-	"fmt"
-	"net/http"
+	"booking-engine/internal/usecase"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/gofiber/fiber"
 )
 
@@ -16,9 +12,16 @@ const (
 	recipient = "syams.arie@gmail.com"
 )
 
-type EmailData struct {
-	RecipientName string
-	PaymentCode   string
+type Email struct {
+	EmailUsecase usecase.EmailExecutor
+}
+
+type EmailHandler interface {
+	SendEmail(c *fiber.Ctx) error
+}
+
+func NewEmailHandler(email Email) EmailHandler {
+	return &email
 }
 
 // func sendEmail(c *fiber.Ctx) error {
@@ -79,42 +82,13 @@ type EmailData struct {
 
 // }
 
-func sendEmail(c *fiber.Ctx) error {
+// sendEmail implements EmailHandler.
+func (e *Email) SendEmail(c *fiber.Ctx) error {
 	// Create a new AWS session using credentials from environment variables, IAM role, or AWS credentials file.
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(awsRegion),
-	})
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create AWS session"})
+	if err := e.EmailUsecase.SendEmail(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Create an SES client
-	sesClient := ses.New(sess)
-
-	// Construct the email input
-	input := &ses.SendEmailInput{
-		Destination: &ses.Destination{
-			ToAddresses: []*string{aws.String(recipient)},
-		},
-		Message: &ses.Message{
-			Body: &ses.Body{
-				Text: &ses.Content{
-					Data: aws.String("Hello, this is the body of the email."),
-				},
-			},
-			Subject: &ses.Content{
-				Data: aws.String("Test Email"),
-			},
-		},
-		Source: aws.String(sender),
-	}
-
-	// Send the email
-	_, err = sesClient.SendEmail(input)
-	if err != nil {
-		fmt.Println(err)
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to send email"})
-	}
-
-	return c.JSON(fiber.Map{"message": "Email sent successfully"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Email sent successfully"})
+	// return c.JSON(fiber.Map{"message": "Email sent successfully"})
 }

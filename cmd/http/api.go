@@ -73,6 +73,8 @@ func main() {
 		ReservationRepo: reservationRepo,
 	})
 
+	// emailUsecase := usecase.NewEmailUsecaseService(&usecase.EmailUsecase{})
+
 	// Initialize handler
 	flightHandler := handler.NewHandler(handler.Handler{
 		Usecase: flightUscase,
@@ -81,6 +83,10 @@ func main() {
 	paymentHandler := handler.NewPaymentHandler(handler.Payment{
 		PaymentUsecase: paymentUsecase,
 	})
+
+	// emailHandler := handler.NewEmailHandler(handler.Email{
+	// 	EmailUsecase: emailUsecase,
+	// })
 
 	app := fiber.New(fiber.Config{
 		BodyLimit: 30 * 1024 * 1024,
@@ -200,6 +206,23 @@ func sendEmail(c *fiber.Ctx) error {
 	// Create an SES client
 	sesClient := ses.New(sess)
 
+	htmlTemplate := `
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Payment Code Email</title>
+		</head>
+		<body>
+			<h1>Payment Code Email</h1>
+			<p>Hello {{.RecipientName}},</p>
+			<p>Your payment code is: <strong>{{.PaymentCode}}</strong></p>
+			<p>Thank you for your payment!</p>
+		</body>
+		</html>
+	`
 	// Construct the email input
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
@@ -207,12 +230,12 @@ func sendEmail(c *fiber.Ctx) error {
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{
-				Text: &ses.Content{
-					Data: aws.String("Hello, this is the body of the email."),
+				Html: &ses.Content{
+					Data: aws.String(htmlTemplate),
 				},
 			},
 			Subject: &ses.Content{
-				Data: aws.String("Test Email"),
+				Data: aws.String("Reservation Ticket"),
 			},
 		},
 		Source: aws.String(sender),
