@@ -30,6 +30,7 @@ type Reservation struct {
 	PassengerID   int       `json:"passenge_id"`
 	SeatNumber    string    `json:"seat_number"`
 	Price         float64   `json:"price"`
+	PaymentCode   float64   `json:"payment_code"`
 	CreatedAt     time.Time `json:"create_at"`
 }
 
