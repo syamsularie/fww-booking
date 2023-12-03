@@ -1,15 +1,141 @@
 basePath: /
-host: localhost:8080
+definitions:
+  model.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  model.PaymentDetailResponse:
+    properties:
+      flight_number:
+        type: string
+      passenger_first_name:
+        type: string
+      passenger_last_name:
+        type: string
+      payment_code:
+        type: string
+      payment_method:
+        type: string
+      payment_status:
+        type: boolean
+      price:
+        type: number
+      seat_number:
+        type: integer
+    type: object
+  model.PaymentPayRequest:
+    properties:
+      payment_code:
+        type: string
+    type: object
+  model.StatusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  model.TicketDetailResponse:
+    properties:
+      arrival_airport_code:
+        type: string
+      arrival_date_time:
+        type: string
+      booking_code:
+        type: string
+      departure_airport_code:
+        type: string
+      departure_date_time:
+        type: string
+      flight_number:
+        type: string
+      passenger_first_name:
+        type: string
+      passenger_last_name:
+        type: string
+      seat_number:
+        type: string
+    type: object
+host: localhost:3002
 info:
-  contact:
-    email: fiber@swagger.io
-    name: API Support
-  description: This is a sample swagger for Fiber
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Fiber Example API
+  contact: {}
+  description: This is a FWW Booking API
+  title: FWW-Booking API
   version: "1.0"
-paths: {}
+paths:
+  /payment/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Payment Detail by Payment ID
+      parameters:
+      - description: payment id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaymentDetailResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get Payment Detail by Payment ID
+      tags:
+      - payment
+  /payment/pay:
+    post:
+      consumes:
+      - application/json
+      description: Post Payment Pay
+      parameters:
+      - description: payment pay request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaymentPayRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Post Payment Pay
+      tags:
+      - payment
+  /ticket/detail/{booking_code}:
+    get:
+      consumes:
+      - application/json
+      description: Get Ticket Detail by Booking Code
+      parameters:
+      - description: booking code
+        in: path
+        name: booking_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TicketDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get Ticket Detail by Booking Code
+      tags:
+      - payment
 swagger: "2.0"

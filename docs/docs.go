@@ -9,30 +9,226 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "fiber@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/payment/detail/{id}": {
+            "get": {
+                "description": "Get Payment Detail by Payment ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Get Payment Detail by Payment ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "payment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PaymentDetailResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/pay": {
+            "post": {
+                "description": "Post Payment Pay",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Post Payment Pay",
+                "parameters": [
+                    {
+                        "description": "payment pay request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PaymentPayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ticket/detail/{booking_code}": {
+            "get": {
+                "description": "Get Ticket Detail by Booking Code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Get Ticket Detail by Booking Code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "booking code",
+                        "name": "booking_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TicketDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PaymentDetailResponse": {
+            "type": "object",
+            "properties": {
+                "flight_number": {
+                    "type": "string"
+                },
+                "passenger_first_name": {
+                    "type": "string"
+                },
+                "passenger_last_name": {
+                    "type": "string"
+                },
+                "payment_code": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "payment_status": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "seat_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PaymentPayRequest": {
+            "type": "object",
+            "properties": {
+                "payment_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TicketDetailResponse": {
+            "type": "object",
+            "properties": {
+                "arrival_airport_code": {
+                    "type": "string"
+                },
+                "arrival_date_time": {
+                    "type": "string"
+                },
+                "booking_code": {
+                    "type": "string"
+                },
+                "departure_airport_code": {
+                    "type": "string"
+                },
+                "departure_date_time": {
+                    "type": "string"
+                },
+                "flight_number": {
+                    "type": "string"
+                },
+                "passenger_first_name": {
+                    "type": "string"
+                },
+                "passenger_last_name": {
+                    "type": "string"
+                },
+                "seat_number": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:3002",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Fiber Example API",
-	Description:      "This is a sample swagger for Fiber",
+	Title:            "FWW-Booking API",
+	Description:      "This is a FWW Booking API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
