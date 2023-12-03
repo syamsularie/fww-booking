@@ -13,6 +13,8 @@ import (
 	"os"
 	"time"
 
+	_ "booking-engine/docs"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
@@ -27,15 +29,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// @title Fiber Example API
+// @title FWW-Booking API
 // @version 1.0
-// @description This is a sample swagger for Fiber
-// @termsOfService http://swagger.io/terms/
-// @contact.name API Support
-// @contact.email fiber@swagger.io
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host localhost:8080
+// @description This is a FWW Booking API
+// @host localhost:3002
 // @BasePath /
 func main() {
 	baseDep := config.NewBaseDep()
