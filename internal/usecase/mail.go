@@ -10,7 +10,7 @@ type EmailUsecase struct {
 }
 
 type EmailExecutor interface {
-	SendEmail() error
+	SendEmail(reservationId int) error
 }
 
 func NewEmailUsecaseService(emailUsecase *EmailUsecase) EmailExecutor {
@@ -23,7 +23,7 @@ const (
 	recipient = "syams.arie@gmail.com"
 )
 
-func (e *EmailUsecase) SendEmail() error {
+func (e *EmailUsecase) SendEmail(reservationId int) error {
 
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(awsRegion),
@@ -42,7 +42,7 @@ func (e *EmailUsecase) SendEmail() error {
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{
-				Text: &ses.Content{
+				Html: &ses.Content{
 					Data: aws.String("Hello, this is the body of the email."),
 				},
 			},

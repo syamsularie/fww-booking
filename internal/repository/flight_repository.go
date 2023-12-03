@@ -3,6 +3,8 @@ package repository
 import (
 	"booking-engine/internal/model"
 	"database/sql"
+	"math/rand"
+	"time"
 )
 
 type FlightRepository struct {
@@ -30,6 +32,13 @@ func (r *FlightRepository) SaveBooking(booking model.BookingRequest) (reservatio
 		return 0, err
 	}
 	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	queryPayment := "INSERT INTO payments (reservation_id, amount, payment_status, payment_code, created_at) VALUES (?, ?, ?, ?, NOW())"
+	_, err = r.DB.Exec(queryPayment, lastInsertID, booking.Price, 0, generateRandomNumber())
+
 	if err != nil {
 		return 0, err
 	}
@@ -84,4 +93,14 @@ func (r *FlightRepository) UpdateInstanceID(reservationID int, instanceKey int64
 	}
 
 	return nil
+}
+
+func generateRandomNumber() int {
+	// Seed the random number generator with the current time
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random 10-digit number
+	min := 1000000000
+	max := 9999999999
+	return rand.Intn(max-min+1) + min
 }

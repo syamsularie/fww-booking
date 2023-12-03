@@ -6,6 +6,7 @@ CREATE TABLE reservations (
     price DECIMAL(10, 2) NOT NULL,
     instance_key BIGINT,
     booking_code VARCHAR(10),
+    checkin_status TINYINT(1) DEFAULT 0,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -21,4 +22,4 @@ CREATE TABLE payments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE fww_booking.payments ADD CONSTRAINT payments_FK FOREIGN KEY (reservation_id) REFERENCES fww_booking.reservations(reservation_id);
+ALTER TABLE payments ADD CONSTRAINT payments_FK FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id);

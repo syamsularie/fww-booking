@@ -58,7 +58,7 @@ func (h *Payment) PostPaymentPay(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := h.PaymentUsecase.UpdatePaymentStatus(request.PaymentCode, true); err != nil {
+	if err := h.PaymentUsecase.UpdatePaymentStatus(request, true); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 

@@ -27,7 +27,7 @@ type FlightResponse struct {
 type Reservation struct {
 	ReservationID int       `json:"reservation_id"`
 	FlightNumber  string    `json:"flight_number"`
-	PassengerID   int       `json:"passenge_idr"`
+	PassengerID   int       `json:"passenge_id"`
 	SeatNumber    string    `json:"seat_number"`
 	Price         float64   `json:"price"`
 	CreatedAt     time.Time `json:"create_at"`
@@ -41,6 +41,10 @@ type BookingRequest struct {
 	Price        float64 `json:"price"`
 }
 
+type EmailRequest struct {
+	ReservationId int `json:"reservation_id"`
+}
+
 // Variable BPMN
 
 type BookingVariables struct {
@@ -48,6 +52,7 @@ type BookingVariables struct {
 	BlacklistUser  bool   `json:"blacklistUser"`
 	PeduliLindungi string `json:"peduliLindungi"`
 	Dukcapil       string `json:"dukcapil"`
+	PassengerID    string `json:"passengerId"`
 	StatusPayment  bool   `json:"status_payment"`
 }
 

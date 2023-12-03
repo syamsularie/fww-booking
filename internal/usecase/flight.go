@@ -4,8 +4,12 @@ import (
 	"booking-engine/internal/model"
 	"booking-engine/internal/repository"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/camunda-cloud/zeebe/clients/go/pkg/zbc"
 )
@@ -40,7 +44,30 @@ func (s *FlightUsecase) BookFlight(bookingRequest model.BookingRequest) (model.R
 	if err != nil {
 		return model.Reservation{}, err
 	}
-	// For simplicity, let's assume the booking is successful
+
+	passengerIDRequest := strconv.Itoa(bookingRequest.PassengerID)
+	fwwCoreApiURL := os.Getenv("FWW_CORE_URL") + "/passengers/" + passengerIDRequest
+	fmt.Println(fwwCoreApiURL)
+	response, err := http.Get(fwwCoreApiURL)
+	if err != nil {
+		fmt.Println(err)
+		return model.Reservation{}, err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err)
+		return model.Reservation{}, err
+	}
+	var passenger model.PassengerResponse
+	err = json.Unmarshal(body, &passenger)
+	if err != nil {
+		fmt.Println(err)
+		return model.Reservation{}, err
+	}
+
+	fmt.Println(passenger)
 	newBooking := model.Reservation{
 		ReservationID: reservationId,
 		FlightNumber:  bookingRequest.FlightNumber,
@@ -69,13 +96,13 @@ func (s *FlightUsecase) BookFlight(bookingRequest model.BookingRequest) (model.R
 	}
 
 	ctx := context.Background()
-	// variables := make(map[model.BookingVariables]interface{})
 	variables := model.BookingVariables{
 		ReservationID:  reservationId,
 		StatusPayment:  false,
 		BlacklistUser:  false,
 		Dukcapil:       "not valid",
 		PeduliLindungi: "not vaksin",
+		PassengerID:    passenger.Ktp,
 	}
 
 	request, err := zbClient.NewCreateInstanceCommand().BPMNProcessId("fww-reservation").LatestVersion().VariablesFromObject(variables)

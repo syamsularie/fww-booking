@@ -15,9 +15,6 @@ import (
 
 	_ "booking-engine/docs"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/gofiber/swagger"
 
 	"github.com/gofiber/fiber/v2"
@@ -70,7 +67,7 @@ func main() {
 		ReservationRepo: reservationRepo,
 	})
 
-	// emailUsecase := usecase.NewEmailUsecaseService(&usecase.EmailUsecase{})
+	emailUsecase := usecase.NewEmailUsecaseService(&usecase.EmailUsecase{})
 
 	// Initialize handler
 	flightHandler := handler.NewHandler(handler.Handler{
@@ -81,9 +78,9 @@ func main() {
 		PaymentUsecase: paymentUsecase,
 	})
 
-	// emailHandler := handler.NewEmailHandler(handler.Email{
-	// 	EmailUsecase: emailUsecase,
-	// })
+	emailHandler := handler.NewEmailHandler(handler.Email{
+		EmailUsecase: emailUsecase,
+	})
 
 	app := fiber.New(fiber.Config{
 		BodyLimit: 30 * 1024 * 1024,
@@ -105,7 +102,7 @@ func main() {
 	})
 
 	//== Send email payment
-	app.Post("/send-email", sendEmail)
+	app.Post("/send-email", emailHandler.SendEmail)
 	//=== Swagger route
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	//=== healthz route
@@ -191,59 +188,59 @@ const (
 	recipient = "syams.arie@gmail.com"
 )
 
-func sendEmail(c *fiber.Ctx) error {
-	// Create a new AWS session using credentials from environment variables, IAM role, or AWS credentials file.
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(awsRegion),
-	})
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create AWS session"})
-	}
+// func sendEmail(c *fiber.Ctx) error {
+// 	// Create a new AWS session using credentials from environment variables, IAM role, or AWS credentials file.
+// 	sess, err := session.NewSession(&aws.Config{
+// 		Region: aws.String(awsRegion),
+// 	})
+// 	if err != nil {
+// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create AWS session"})
+// 	}
 
-	// Create an SES client
-	sesClient := ses.New(sess)
+// 	// Create an SES client
+// 	sesClient := ses.New(sess)
 
-	htmlTemplate := `
-		<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Payment Code Email</title>
-		</head>
-		<body>
-			<h1>Payment Code Email</h1>
-			<p>Hello {{.RecipientName}},</p>
-			<p>Your payment code is: <strong>{{.PaymentCode}}</strong></p>
-			<p>Thank you for your payment!</p>
-		</body>
-		</html>
-	`
-	// Construct the email input
-	input := &ses.SendEmailInput{
-		Destination: &ses.Destination{
-			ToAddresses: []*string{aws.String(recipient)},
-		},
-		Message: &ses.Message{
-			Body: &ses.Body{
-				Html: &ses.Content{
-					Data: aws.String(htmlTemplate),
-				},
-			},
-			Subject: &ses.Content{
-				Data: aws.String("Reservation Ticket"),
-			},
-		},
-		Source: aws.String(sender),
-	}
+// 	htmlTemplate := `
+// 		<!DOCTYPE html>
+// 		<html lang="en">
+// 		<head>
+// 			<meta charset="UTF-8">
+// 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+// 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+// 			<title>Payment Code Email</title>
+// 		</head>
+// 		<body>
+// 			<h1>Payment Code Email</h1>
+// 			<p>Hello {{.RecipientName}},</p>
+// 			<p>Your payment code is: <strong>{{.PaymentCode}}</strong></p>
+// 			<p>Thank you for your payment!</p>
+// 		</body>
+// 		</html>
+// 	`
+// 	// Construct the email input
+// 	input := &ses.SendEmailInput{
+// 		Destination: &ses.Destination{
+// 			ToAddresses: []*string{aws.String(recipient)},
+// 		},
+// 		Message: &ses.Message{
+// 			Body: &ses.Body{
+// 				Html: &ses.Content{
+// 					Data: aws.String(htmlTemplate),
+// 				},
+// 			},
+// 			Subject: &ses.Content{
+// 				Data: aws.String("Reservation Ticket"),
+// 			},
+// 		},
+// 		Source: aws.String(sender),
+// 	}
 
-	// Send the email
-	_, err = sesClient.SendEmail(input)
-	if err != nil {
-		fmt.Println(err)
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to send email"})
-	}
+// 	// Send the email
+// 	_, err = sesClient.SendEmail(input)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to send email"})
+// 	}
 
-	return c.JSON(fiber.Map{"message": "Email sent successfully"})
-}
+// 	return c.JSON(fiber.Map{"message": "Email sent successfully"})
+// }

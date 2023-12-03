@@ -19,7 +19,7 @@ type PaymentUsecase struct {
 
 type PaymentExecutor interface {
 	GetPaymentDetailByPaymentID(paymentID int) (model.PaymentDetailResponse, error)
-	UpdatePaymentStatus(paymentCode string, status bool) error
+	UpdatePaymentStatus(payment model.PaymentPayRequest, status bool) error
 	GetTicketDetailByBookingCode(bookingCode string) (model.TicketDetailResponse, error)
 }
 
@@ -66,12 +66,12 @@ func (s *PaymentUsecase) GetPaymentDetailByPaymentID(paymentID int) (model.Payme
 	return paymentDetailResponse, nil
 }
 
-func (s *PaymentUsecase) UpdatePaymentStatus(paymentCode string, status bool) error {
-	if err := s.PaymentRepo.UpdatePaymentStatus(paymentCode, status); err != nil {
+func (s *PaymentUsecase) UpdatePaymentStatus(payment model.PaymentPayRequest, status bool) error {
+	if err := s.PaymentRepo.UpdatePaymentStatus(payment, status); err != nil {
 		return err
 	}
 
-	reservationID, err := s.PaymentRepo.GetReservationIDByPaymentCode(paymentCode)
+	reservationID, err := s.PaymentRepo.GetReservationIDByPaymentCode(payment.PaymentCode)
 	if err != nil {
 		return err
 	}
