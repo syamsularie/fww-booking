@@ -16,6 +16,7 @@ type PaymentHandler interface {
 	GetPaymentDetailByPaymentID(c *fiber.Ctx) error
 	PostPaymentPay(c *fiber.Ctx) error
 	GetTicketDetailByBookingCode(c *fiber.Ctx) error
+	GetPaymentDetailByReservationID(c *fiber.Ctx) error
 }
 
 func NewPaymentHandler(handler Payment) PaymentHandler {
@@ -36,6 +37,27 @@ func (h *Payment) GetPaymentDetailByPaymentID(c *fiber.Ctx) error {
 
 	paymentId, _ := strconv.Atoi(paymentIDString)
 	paymentDetail, err := h.PaymentUsecase.GetPaymentDetailByPaymentID(paymentId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(paymentDetail)
+}
+
+// @Summary Get Payment Detail by Reservation ID
+// @Description	Get Payment Detail by Reservation ID
+// @Tags payment
+// @Accept json
+// @Produce	json
+// @Param id path string true "reservation id"
+// @Success 200 {object} model.PaymentDetailResponse "OK"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
+// @Router /payment/detail/{id} [get]
+func (h *Payment) GetPaymentDetailByReservationID(c *fiber.Ctx) error {
+	reservationIDString := c.Params("id")
+
+	reservationId, _ := strconv.Atoi(reservationIDString)
+	paymentDetail, err := h.PaymentUsecase.GetPaymentDetailByReservationID(reservationId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

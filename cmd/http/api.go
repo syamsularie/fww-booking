@@ -117,6 +117,7 @@ func main() {
 	app.Post("/complete", Complete)
 	//=== payment route
 	app.Get("/payment/detail/:id", paymentHandler.GetPaymentDetailByPaymentID)
+	app.Get("/payment/detail/reservation/:id", paymentHandler.GetPaymentDetailByReservationID)
 	app.Post("/payment/pay", paymentHandler.PostPaymentPay)
 	app.Get("/ticket/detail/:booking_code", paymentHandler.GetTicketDetailByBookingCode)
 
