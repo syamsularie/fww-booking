@@ -106,6 +106,8 @@ func main() {
 
 	//== Send email payment
 	app.Post("/send-email", emailHandler.SendEmail)
+	app.Post("/send-email-unpaid", emailHandler.SendEmailUnpaid)
+	app.Post("/send-email-failed-payment", emailHandler.SendEmailFailedPayment)
 	//=== Swagger route
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	//=== healthz route
