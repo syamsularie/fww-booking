@@ -3,6 +3,7 @@ package handler
 import (
 	"booking-engine/internal/model"
 	"booking-engine/internal/usecase"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -31,8 +32,9 @@ func (e *Email) SendEmail(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid request format")
 	}
-
+	fmt.Println(request)
 	if err := e.EmailUsecase.SendEmail(request.ReservationId); err != nil {
+		fmt.Println(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 

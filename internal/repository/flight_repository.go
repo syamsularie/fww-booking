@@ -36,7 +36,7 @@ func (r *FlightRepository) SaveBooking(booking model.BookingRequest) (reservatio
 		return 0, err
 	}
 
-	queryPayment := "INSERT INTO payments (reservation_id, amount, payment_status, payment_code, created_at) VALUES (?, ?, ?, ?, NOW())"
+	queryPayment := "INSERT INTO payments (reservation_id, amount, payment_status, payment_code, created_at, payment_method) VALUES (?, ?, ?, ?, NOW(), '')"
 	_, err = r.DB.Exec(queryPayment, lastInsertID, booking.Price, 0, generateRandomNumber())
 
 	if err != nil {
