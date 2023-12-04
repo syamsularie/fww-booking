@@ -21,6 +21,7 @@ type PaymentDetailResponse struct {
 	PaymentStatus      bool    `json:"payment_status"`
 	PaymentMethod      string  `json:"payment_method"`
 	PaymentCode        string  `json:"payment_code"`
+	BookingCode        string  `json:"booking_code"`
 }
 
 type PaymentPayRequest struct {
