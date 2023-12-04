@@ -25,7 +25,7 @@ func NewFlightRepository(flight FlightRepository) FlightPersister {
 
 // SaveBooking saves a new booking to the MySQL database
 func (r *FlightRepository) SaveBooking(booking model.BookingRequest) (reservationID int, err error) {
-	query := "INSERT INTO reservations (flight_number, passenger_id, seat_number, price, created_at) VALUES (?, ?, ?, ?, NOW())"
+	query := "INSERT INTO reservations (flight_number, passenger_id, seat_number, price, created_at, booking_code) VALUES (?, ?, ?, ?, NOW(), '')"
 	result, err := r.DB.Exec(query, booking.FlightNumber, booking.PassengerID, booking.SeatNumber, booking.Price)
 
 	if err != nil {
