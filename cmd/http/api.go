@@ -6,10 +6,8 @@ import (
 	"booking-engine/internal/handler"
 	"booking-engine/internal/repository"
 	"booking-engine/internal/usecase"
-	"bytes"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -108,6 +106,7 @@ func main() {
 	app.Post("/send-email", emailHandler.SendEmail)
 	app.Post("/send-email-unpaid", emailHandler.SendEmailUnpaid)
 	app.Post("/send-email-failed-payment", emailHandler.SendEmailFailedPayment)
+	app.Post("/send-email-reservation", emailHandler.SendEmailReservationCode)
 	//=== Swagger route
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	//=== healthz route
@@ -116,7 +115,6 @@ func main() {
 	app.Get("/flights/:id", flightHandler.GetFlightByID)
 	app.Post("/bookings", flightHandler.BookFlight)
 	app.Get("/bookings", flightHandler.GetAllReservations)
-	app.Post("/complete", Complete)
 	//=== payment route
 	app.Get("/payment/detail/:id", paymentHandler.GetPaymentDetailByPaymentID)
 	app.Get("/payment/detail/reservation/:id", paymentHandler.GetPaymentDetailByReservationID)
@@ -136,42 +134,6 @@ func Healthz(c *fiber.Ctx) error {
 	}
 
 	if err := c.JSON(res); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func Complete(c *fiber.Ctx) error {
-	zeebeBrokerURL := os.Getenv("ZEEBE_ADDRESS")
-	// workflowInstanceKey := "2251799814100631"
-	// taskID := 2251799814100650
-
-	// Send a POST request to complete the user task
-	url := fmt.Sprintf("https://%s/workflow-instance/2251799814100631/complete", zeebeBrokerURL)
-	requestBody := fmt.Sprintf(`{"elementId": "%s"}`, "2251799814100650")
-
-	req, err := http.NewRequest("POST", url, bytes.NewBufferString(requestBody))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusOK {
-		fmt.Println("User task completed successfully.")
-	} else {
-		fmt.Printf("Failed to complete user task. Status code: %d\n", resp.StatusCode)
-	}
-
-	if err := c.JSON("OK"); err != nil {
 		return err
 	}
 

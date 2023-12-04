@@ -5,6 +5,7 @@ import (
 	"booking-engine/internal/repository"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -253,7 +254,6 @@ func (e *EmailUsecase) SendEmailFailedPayment(reservationId int) error {
 	paymentDetailResponse.PaymentStatus = paymentDetail.PaymentStatus
 	paymentDetailResponse.PaymentMethod = paymentDetail.PaymentMethod
 	paymentDetailResponse.PaymentCode = paymentDetail.PaymentCode
-
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(awsRegion),
 	})
@@ -309,6 +309,7 @@ func (e *EmailUsecase) SendEmailReservationCode(reservationId int) error {
 		return err
 	}
 
+	fmt.Println("BLA", reservation)
 	//Fetch passenger
 	passengerIDRequest := strconv.Itoa(reservation.PassengerID)
 	fwwCoreApiURL := os.Getenv("FWW_CORE_URL") + "/passengers/" + passengerIDRequest
@@ -341,13 +342,13 @@ func (e *EmailUsecase) SendEmailReservationCode(reservationId int) error {
 	if err != nil {
 		return err
 	}
-
 	var flight model.FlightResponse
 	err = json.Unmarshal(body, &flight)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("BLA", flight)
 	ticketDetailResponse.FlightNumber = reservation.FlightNumber
 	ticketDetailResponse.BookingCode = reservation.BookingCode
 	ticketDetailResponse.PassengerFirstName = passenger.FirstName
@@ -359,6 +360,7 @@ func (e *EmailUsecase) SendEmailReservationCode(reservationId int) error {
 	ticketDetailResponse.DepartureDateTime = flight.DepartureDateTime
 	ticketDetailResponse.ArrivalDateTime = flight.ArrivalDateTime
 
+	fmt.Println("BLA", ticketDetailResponse)
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(awsRegion),
 	})
@@ -366,7 +368,7 @@ func (e *EmailUsecase) SendEmailReservationCode(reservationId int) error {
 		return err
 	}
 	// Parse the HTML template
-	tmpl, err := template.New("reservationTemplate").Parse(htmlTemplate)
+	tmpl, err := template.New("reservationCodeTemplate").Parse(htmlBookingTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -452,7 +454,6 @@ const (
         <p><strong>Departure Date:</strong> {{.DepartureDateTime}}</p>
         <p>We look forward to having you on board. Please ensure you arrive at the airport well in advance.</p>
         <p>Safe travels!</p>
-        <a href="{{.CheckInLink}}">Check-in Now</a>
     </div>
 </body>
 </html>

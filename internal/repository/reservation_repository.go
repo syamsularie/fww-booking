@@ -45,9 +45,9 @@ func (r *ReservationRepository) GetReservationByBookingCode(bookingCode string) 
 func (r *ReservationRepository) GetReservationById(reservationId int) (model.Reservation, error) {
 	var reservation model.Reservation
 
-	query := `SELECT reservation_id, flight_number, passenger_id, seat_number, price, created_at FROM reservations WHERE reservation_id = ?`
+	query := `SELECT reservation_id, flight_number, passenger_id, seat_number, price, created_at, booking_code FROM reservations WHERE reservation_id = ?`
 	row := r.DB.QueryRow(query, reservationId)
-	err := row.Scan(&reservation.ReservationID, &reservation.FlightNumber, &reservation.PassengerID, &reservation.SeatNumber, &reservation.Price, &reservation.CreatedAt)
+	err := row.Scan(&reservation.ReservationID, &reservation.FlightNumber, &reservation.PassengerID, &reservation.SeatNumber, &reservation.Price, &reservation.CreatedAt, &reservation.BookingCode)
 	if err != nil {
 		return reservation, err
 	}
